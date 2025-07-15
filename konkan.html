@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konkan - Team Score Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .title {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .team-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .team-card.team-2 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .score-display {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .games-count {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .btn-win {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            font-weight: bold;
+            border-radius: 25px;
+            padding: 10px 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-win:hover {
+            background: white;
+            color: #333;
+            transform: scale(1.05);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+        
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 12px 20px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .reset-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            padding: 8px 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <!-- Setup Phase -->
+            <div id="setupPhase" class="card p-5" style="max-width: 600px; margin: 0 auto;">
+                <h1 class="title">Konkan</h1>
+                <h4 class="text-center mb-4 text-muted">Team Score Tracker</h4>
+                
+                <div class="mb-4">
+                    <label for="team1Name" class="form-label fw-bold">Team 1 Name:</label>
+                    <input type="text" class="form-control" id="team1Name" placeholder="Enter first team name">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="team2Name" class="form-label fw-bold">Team 2 Name:</label>
+                    <input type="text" class="form-control" id="team2Name" placeholder="Enter second team name">
+                </div>
+                
+                <button class="btn btn-primary w-100" onclick="startGame()">Start Game</button>
+            </div>
+            
+            <!-- Game Phase -->
+            <div id="gamePhase" class="d-none">
+                <div class="text-center mb-4">
+                    <h1 class="title">Konkan</h1>
+                    <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+                        <h5 class="mb-0 text-white">Games Played: <span id="totalGames">0</span></h5>
+                        <button class="btn reset-btn btn-sm" onclick="resetGame()">Reset Game</button>
+                    </div>
+                    <div id="scoreDifference" class="text-white h6"></div>
+                </div>
+                
+                <div class="row g-4">
+                    <!-- Team 1 -->
+                    <div class="col-md-6">
+                        <div class="card team-card p-4 h-100">
+                            <div class="text-center">
+                                <h3 id="team1DisplayName" class="mb-3">Team 1</h3>
+                                <div class="games-count mb-3">Score: <span id="team1Score">0</span></div>
+                                <div class="games-count mb-3">Wins: <span id="team1Wins">0</span></div>
+                                <button class="btn btn-win" onclick="showScoreInput(1)">I Win!</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team 2 -->
+                    <div class="col-md-6">
+                        <div class="card team-card team-2 p-4 h-100">
+                            <div class="text-center">
+                                <h3 id="team2DisplayName" class="mb-3">Team 2</h3>
+                                <div class="games-count mb-3">Score: <span id="team2Score">0</span></div>
+                                <div class="games-count mb-3">Wins: <span id="team2Wins">0</span></div>
+                                <button class="btn btn-win" onclick="showScoreInput(2)">I Win!</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Score Input Modal -->
+            <div id="scoreModal" class="modal" style="display: none;">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Enter Score for <span id="modalTeamName"></span></h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="scoreInput" class="form-label">Score to add:</label>
+                                <input type="number" class="form-control" id="scoreInput" placeholder="Enter score to add" min="0">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="updateScore()">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Game state variables
+        let team1Name = '';
+        let team2Name = '';
+        let team1Score = 0;
+        let team2Score = 0;
+        let team1Wins = 0;
+        let team2Wins = 0;
+        let totalGames = 0;
+        let currentTeam = 0;
+
+        function updateScoreDifference() {
+            const scoreDiffElement = document.getElementById('scoreDifference');
+            
+            if (team1Score === team2Score) {
+                scoreDiffElement.textContent = "Scores are tied!";
+            } else if (team1Score > team2Score) {
+                const difference = team1Score - team2Score;
+                scoreDiffElement.textContent = `${team1Name}'s Team is ${difference} ahead`;
+            } else {
+                const difference = team2Score - team1Score;
+                scoreDiffElement.textContent = `${team2Name}'s Team is ${difference} ahead`;
+            }
+        }
+
+        function startGame() {
+            // Get team names
+            team1Name = document.getElementById('team1Name').value.trim();
+            team2Name = document.getElementById('team2Name').value.trim();
+            
+            // Validate input
+            if (!team1Name || !team2Name) {
+                swal("Missing Team Names!", "Please enter both team names!", "error");
+                return;
+            }
+            
+            // Update display
+            document.getElementById('team1DisplayName').textContent = team1Name;
+            document.getElementById('team2DisplayName').textContent = team2Name;
+            
+            // Switch to game phase
+            document.getElementById('setupPhase').classList.add('d-none');
+            document.getElementById('gamePhase').classList.remove('d-none');
+            
+            // Update score difference display
+            updateScoreDifference();
+        }
+
+        function showScoreInput(teamNumber) {
+            currentTeam = teamNumber;
+            const teamName = teamNumber === 1 ? team1Name : team2Name;
+            document.getElementById('modalTeamName').textContent = teamName;
+            document.getElementById('scoreInput').value = '';
+            document.getElementById('scoreModal').style.display = 'block';
+            document.getElementById('scoreInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('scoreModal').style.display = 'none';
+            currentTeam = 0;
+        }
+
+        function updateScore() {
+            const scoreInput = document.getElementById('scoreInput');
+            const newScore = parseInt(scoreInput.value);
+            
+            if (isNaN(newScore) || newScore < 0) {
+                swal("Invalid Score!", "Please enter a valid positive number!", "error");
+                return;
+            }
+            
+            // Update scores and wins (add to existing score)
+            if (currentTeam === 1) {
+                team1Score += newScore;
+                team1Wins++;
+                document.getElementById('team1Score').textContent = team1Score;
+                document.getElementById('team1Wins').textContent = team1Wins;
+            } else {
+                team2Score += newScore;
+                team2Wins++;
+                document.getElementById('team2Score').textContent = team2Score;
+                document.getElementById('team2Wins').textContent = team2Wins;
+            }
+            
+            // Update total games
+            totalGames++;
+            document.getElementById('totalGames').textContent = totalGames;
+            
+            // Update score difference display
+            updateScoreDifference();
+            
+            // Close modal
+            closeModal();
+            
+            // Add a small celebration animation
+            const teamCard = document.querySelector(currentTeam === 1 ? '.team-card:not(.team-2)' : '.team-card.team-2');
+            teamCard.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                teamCard.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        function resetGame() {
+            // Determine who won
+            let winnerMessage = '';
+            if (team1Score > team2Score) {
+                winnerMessage = `🎉 ${team1Name}'s Team Won! 🎉\nFinal Score: ${team1Score} - ${team2Score}`;
+            } else if (team2Score > team1Score) {
+                winnerMessage = `🎉 ${team2Name}'s Team Won! 🎉\nFinal Score: ${team2Score} - ${team1Score}`;
+            } else if (team1Score === team2Score && totalGames > 0) {
+                winnerMessage = `🤝 It's a Tie! 🤝\nFinal Score: ${team1Score} - ${team2Score}`;
+            } else {
+                winnerMessage = 'No games played yet!';
+            }
+            
+            swal({
+                title: "Reset Game?",
+                text: winnerMessage + "\n\nAre you sure you want to reset and start over?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then((willReset) => {
+                if (willReset) {
+                    // Reset all variables
+                    team1Score = 0;
+                    team2Score = 0;
+                    team1Wins = 0;
+                    team2Wins = 0;
+                    totalGames = 0;
+                    
+                    // Reset display - update the actual span elements
+                    document.querySelector('#team1Score').textContent = '0';
+                    document.querySelector('#team2Score').textContent = '0';
+                    document.querySelector('#team1Wins').textContent = '0';
+                    document.querySelector('#team2Wins').textContent = '0';
+                    document.getElementById('totalGames').textContent = '0';
+                    
+                    // Go back to setup phase
+                    document.getElementById('gamePhase').classList.add('d-none');
+                    document.getElementById('setupPhase').classList.remove('d-none');
+                    
+                    // Clear input fields
+                    document.getElementById('team1Name').value = '';
+                    document.getElementById('team2Name').value = '';
+                    
+                    // Clear score difference
+                    document.getElementById('scoreDifference').textContent = '';
+                    
+                    swal("Game Reset!", "Starting fresh with new teams!", "success");
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('scoreModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Handle Enter key in score input
+        document.getElementById('scoreInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                updateScore();
+            }
+        });
+
+        // Handle Enter key in team name inputs
+        document.getElementById('team1Name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('team2Name').focus();
+            }
+        });
+
+        document.getElementById('team2Name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html>
